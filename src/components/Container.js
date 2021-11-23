@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react';
 import useSound from 'use-sound';
 import correctTrue from '../audio/true.mp3';
 import correctFalse from '../audio/false.mp3';
+import Leaderboard from "./Leaderboard";
+import Finish from "./Finish";
+import { useHistory ,useParams} from "react-router-dom";
 
 var questionArr = [];
 var answerArr = []
@@ -34,10 +37,11 @@ export default function Container({randomOption, setRandomOption,setSayCorrectAn
     const [leaderbordCorrect, setLiderboardCorrect] = useState(null);
     const [leaderbordWrong, setLiderboardWrong] = useState(null);
     let answerArry=[];
+    let history = useHistory();
   
 
 
-    console.log(setQuestionLength);
+
 
 
 
@@ -71,7 +75,18 @@ export default function Container({randomOption, setRandomOption,setSayCorrectAn
                    userDb.soruId=soruId;
                    
                    
+                    if(questionNumber+1===questionLength)
+                    {
+                        if(canChangeQuestion)
+                        {
+                            history.push("/leaderboard")
+                        }
+                        else
+                        {
+                            history.push("/finish")
+                        }
 
+                    }
                  
 
 

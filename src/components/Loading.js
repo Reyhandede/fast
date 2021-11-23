@@ -5,16 +5,20 @@ import { useHistory ,useParams} from "react-router-dom";
 import Start from './Start';
 
 
-export default function Loading(username,setUsername,nickName) {
+export default function Loading(userName,setUserName,nickName) {
     let history = useHistory();
 
     setTimeout(function(){ 
+        if(!nickName)
+        {
+            history.push("/start")
+        }
+        else
+        {
+            history.push("/container")
+        }
 
-        !username && !nickName ? (<Start 
-            username={username}
-            setUsername={setUsername}
-            
-            />):( history.push("/container"))
+     
 
     }, 3000);
 

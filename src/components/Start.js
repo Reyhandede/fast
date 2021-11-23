@@ -1,7 +1,9 @@
 import { useRef } from "react";
+import { useHistory ,useParams} from "react-router-dom";
 
-export default function Start({ setUsername, username }) {
+export default function Start({ setUserName, userName ,nickName}) {
     const inputRef = useRef();
+    let history = useHistory();
 
 
 
@@ -9,7 +11,9 @@ export default function Start({ setUsername, username }) {
 
     const handleClick = () => {
 
-        inputRef.current.value && setUsername(inputRef.current.value);
+        inputRef.current.value && setUserName(inputRef.current.value);
+        history.push("/container")
+
     };
 
 

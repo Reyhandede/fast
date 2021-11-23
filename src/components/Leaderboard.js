@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 
 let b;
 
-export default function Leaderboard(finish,setFinish) {
+export default function Leaderboard() {
   
 
     useEffect(() => {

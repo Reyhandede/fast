@@ -1,6 +1,14 @@
 import "./app.css";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+ 
+} from "react-router-dom";
+
 import Container from "./components/Container";
 import Start from "./components/Start";
+import Finish from "./components/Finish";
 import TimePrev from "./components/TimePrev";
 import TimeNext from "./components/TimeNext";
 
@@ -16,53 +24,47 @@ function App() {
   const [timeOut, setTimeOut] = useState(false);
   const [questionNumber, setQuestionNumber] = useState(0);
   const [earned, setEarned] = useState(0);
-  const [username,setUsername]=useState(null);
+  const [userName,setUserName]=useState(null);
   const [questionLength, setQuestionLength] = useState(null);
   const [nickName, setNickName] = useState(null);
   const [sayCorrectAnswer, setSayCorrectAnswer] = useState(null);
   const [randomOption, setRandomOption] = useState(null);
 
 
-/* <Start 
-username={username}
-setUsername={setUsername}
 
-/> 
-*/
 
 
 
   return (
     <div className="app">
+        
+        <Router>
+    <Switch>
+   
+    <Route exact path="/">
+         <Loading
+         userName={userName}
+         setUserName={setUserName}
+         nickName={nickName}
+         
+         >
+
+
+         </Loading>
       
-      {!username && !nickName ? (
-          <Loading></Loading> ) : (
-        <>
-          {username && nickName ? (
-        <Loading />      ) : (
-        <>
-          
-          {questionNumber === questionLength ||timeOut===0 && sayCorrectAnswer ?  (<h1>Puan:{earned}
-            </h1>
-          ) : (
-            <>
+       
+       
+      </Route> 
 
-              <div className="notebook-page">
+      <Route exact path="/start">
+      <Start userName={userName}
+            setUserName={setUserName}
+            /> 
+      </Route> 
 
-                <div className="topContent">
-                  <div class="timer">
-                    <div className="time">  {sayCorrectAnswer===false?<TimePrev setTimeOut={setTimeOut} questionNumber={questionNumber} sayCorrectAnswer={sayCorrectAnswer }/>:<TimeNext setTimeOut={setTimeOut} questionNumber={questionNumber} sayCorrectAnswer={sayCorrectAnswer }/>}</div>
-                  
-                  
-                  </div>
-                </div>
-
-                
-                <div className="bottomContent">
-                
-          
-                
-                  <Container
+      
+      <Route exact path="/container">
+      <Container
                     setTimeOut={setTimeOut}
                     questionNumber={questionNumber}
                     setQuestionNumber={setQuestionNumber}
@@ -80,20 +82,20 @@ setUsername={setUsername}
                     
 
                   />
-                
-                  
-                
-                </div>
-              </div>
+       
+      </Route> 
 
+      <Route exact path="/finish">
+     <Finish/>
+      </Route> 
+      <Route exact path="/leaderboard">
+      <Leaderboard/>
+      </Route> 
+      </Switch>
 
-
-            </>
-          )}
-        </>
-      )}
-        </>
-      )}
+  
+       
+      </Router>
 
       
     </div>

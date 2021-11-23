@@ -11,9 +11,7 @@ fetch("https://fastleen.com.asenax.com/api/test/get/1").then(
 ).then(responseJson => {
   
 var questionArr = [];
-var answerArr = []
-var qRandom, aRandom;
-var qLength, qRandom;
+
 
     if (responseJson.status === "success") {
      
