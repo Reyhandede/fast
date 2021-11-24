@@ -1,13 +1,10 @@
 import { useRef } from "react";
-import { useHistory ,useParams} from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
-export default function Start({ setUserName, userName ,nickName}) {
+export default function Start({ setUserName, userName, nickName }) {
+
     const inputRef = useRef();
     let history = useHistory();
-
-
-
-
 
     const handleClick = () => {
 

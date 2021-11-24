@@ -3,24 +3,22 @@ import React, { useState, useEffect } from 'react';
 import useSound from 'use-sound';
 import correctTrue from '../audio/true.mp3';
 import correctFalse from '../audio/false.mp3';
-import Leaderboard from "./Leaderboard";
-import Finish from "./Finish";
-import { useHistory ,useParams} from "react-router-dom";
-
-var questionArr = [];
-var answerArr = []
-var qRandom, aRandom;
-var qLength, qRandom;
-var i=0;
-let c=0;
-        let w=0;
-        let userDb={
-  
-        }
-        var liste = [];
+import TimeNext from "./TimeNext";
+import TimePrev from "./TimePrev";
+import { useHistory, } from "react-router-dom";
+import Deneme from './FirebaseRecord';
 
 
-export default function Container({randomOption, setRandomOption,setSayCorrectAnswer, username,sayCorrectAnswer,setTimeOut, questionNumber, setQuestionNumber, earned, setEarned, questionLength, setQuestionLength, setNickName, nickName }) {
+var i = 0;
+let c = 0;
+let w = 0;
+let userDb = {};
+
+
+let liste = [];
+let timeNextArr = [];
+
+export default function Container({ randomOption, setRandomOption, setSayCorrectAnswer, userName, setUserName, sayCorrectAnswer, timeOut, setTimeOut, questionNumber, setQuestionNumber, questionLength, setQuestionLength, setNickName, nickName }) {
 
     const [image, setImage] = useState(null);
     const [questionText, setQuestionText] = useState(null);
@@ -33,29 +31,24 @@ export default function Container({randomOption, setRandomOption,setSayCorrectAn
     const [cTrue] = useSound(correctTrue);
     const [cFalse] = useSound(correctFalse);
     const [prev, setPrev] = useState(true);
-    const [leaderbordTime, setLiderboardTime] = useState(null);
     const [leaderbordCorrect, setLiderboardCorrect] = useState(null);
     const [leaderbordWrong, setLiderboardWrong] = useState(null);
-    let answerArry=[];
+    const [soruId, setSoruId] = useState(0);
+    const [id, setId] = useState(null);
+    const [timePrev, setTimePrev] = useState(30);
+    const [timeNext, setTimeNext] = useState(0);
+    let answerArry = [];
     let history = useHistory();
-  
-
-
-
-
-
-
-
 
 
     useEffect(() => {
-     questionNumber===0? document.querySelector(".previous").disabled=true:document.querySelector(".previous").disabled=false;
-        
-        Promise.resolve(window.responseJson).then(responseJson => {
-            console.log("responseJson",responseJson)
-            if (responseJson.status === "success") {
-                
+        questionNumber === 0 ? document.querySelector(".previous").disabled = true : document.querySelector(".previous").disabled = false;
 
+        Promise.resolve(window.responseJson).then(responseJson => {
+            console.log("responseJson", responseJson)
+            if (responseJson.status === "success") {
+
+                setId(responseJson.data.id);
                 setQuestionLength(responseJson.data.questions.datas.length);
                 setNickName(responseJson.data.options.requiredNickName);
                 setSayCorrectAnswer(responseJson.data.options.sayCorrectAnswer);
@@ -64,40 +57,17 @@ export default function Container({randomOption, setRandomOption,setSayCorrectAn
                 setRandomQuestion(responseJson.data.options.randomQuestion);
                 setShowLeaderbord(responseJson.data.options.showLeaderbord);
 
-
-              
-                    setImage(responseJson.data.questions.datas[questionNumber].question.image)
-                    setQuestionText(responseJson.data.questions.datas[questionNumber].question.text)
-                    setAnwers(responseJson.data.questions.datas[questionNumber])
-                
-
-                   let soruId= responseJson.data.questions.datas[questionNumber].question.id
-                   userDb.soruId=soruId;
-                   
-                   
-                    if(questionNumber+1===questionLength)
-                    {
-                        if(canChangeQuestion)
-                        {
-                            history.push("/leaderboard")
-                        }
-                        else
-                        {
-                            history.push("/finish")
-                        }
-
-                    }
-                 
-
-
-
+                setImage(responseJson.data.questions.datas[questionNumber].question.image)
+                setQuestionText(responseJson.data.questions.datas[questionNumber].question.text)
+                setAnwers(responseJson.data.questions.datas[questionNumber])
+                setSoruId(responseJson.data.questions.datas[questionNumber].question.id)
 
             }
             else {
                 console.error("Access not found!");
 
             }
- 
+
 
 
         })
@@ -106,20 +76,14 @@ export default function Container({randomOption, setRandomOption,setSayCorrectAn
 
     useEffect(() => {
 
-
         if (canChangeQuestion) {
             document.querySelector(".previous").style.visibility = "hidden";
             document.querySelector(".next").style.visibility = "hidden";
         }
 
-        
-
-
-
-
     }, [])
-  
-  
+
+
 
 
     const delay = (duration, callback) => {
@@ -128,30 +92,49 @@ export default function Container({randomOption, setRandomOption,setSayCorrectAn
         }, duration);
     };
     const handleClick = (a) => {
-         
-       
-         userDb.cevap=a.id
-         console.log(userDb)
-         liste[questionNumber]=userDb;
-         console.log(liste)
-       
-         
-         
-        
-        a.correct? c++:w++;
-        answerArry[i]=a;
+
+        userDb = { [soruId]: a.id };
+        liste.push(userDb);
+
+
+        a.correct ? c++ : w++;
+        answerArry[i] = a;
         i++;
         setLiderboardCorrect(c);
         setLiderboardWrong(w);
         setPrev(false)
         setSelectedAnswer(a);
         setClassName("answer active");
-        if (sayCorrectAnswer) {
-            delay(3000, () => setClassName(a.correct ? "answer correct"  : "answer wrong"))
+
+        timeNextArr[questionNumber] = 30 - timePrev;
+        if (questionNumber + 1 === questionLength) {
+            function arrayToList(liste) {
+                let list = null;
+                for (let i = liste.length - 1; i >= 0; i--) {
+                    list = { answer: liste[i] };
+                }
+                return list;
+            }
+
+
+
+            if (!sayCorrectAnswer) {
+                Deneme(id, liste, c, w, userName, timeNext);
+                history.push("/leaderboard")
+            }
+            else {
+
+                Deneme(id, liste, c, w, userName, timeNextArr);
+                history.push("/finish")
+            }
 
         }
 
 
+        if (sayCorrectAnswer) {
+            delay(3000, () => setClassName(a.correct ? "answer correct" : "answer wrong"))
+
+        }
 
 
         delay(5000, () => {
@@ -167,7 +150,7 @@ export default function Container({randomOption, setRandomOption,setSayCorrectAn
 
                     }
 
-                    setEarned((prev) => prev + 5);
+
                     setSelectedAnswer(null);
                 })
 
@@ -190,40 +173,49 @@ export default function Container({randomOption, setRandomOption,setSayCorrectAn
 
     }
     const nextHandleClick = () => {
+
         setQuestionNumber((prev) => prev + 1);
-       
-              
-             
 
     }
-  
 
 
     return (
-        <div className="main">
-
-            <div className="question"><div className="image" style={{ backgroundImage: `url(${image})` }}></div> <div className="questionText">{questionText}</div> </div>
-            <div className="answers" >
-                {
-                             answers?.answers.map((a) => (
-
-                                
-                            <div className={selectedAnswer === a ? className : "answer"} onClick={() => handleClick(a)}>{a.text} </div>
-                        ))
+        <div className="app">
+            <div className="notebook-page">
+                <div className="topContent">
+                    <div class="timer">
+                        <div className="time">  {sayCorrectAnswer === true ? <TimePrev timePrev={timePrev} setTimePrev={setTimePrev} setTimeOut={setTimeOut} questionNumber={questionNumber} sayCorrectAnswer={sayCorrectAnswer} /> : <TimeNext timeNext={timeNext} setTimeNext={setTimeNext} setTimeOut={setTimeOut} questionNumber={questionNumber} sayCorrectAnswer={sayCorrectAnswer} />}</div>
 
 
+                    </div>
+                </div>
+                <div className="bottomContent">
+                    <div className="main">
+                        <div className="question"><div className="image" style={{ backgroundImage: `url(${image})` }}></div> <div className="questionText">{questionText}</div> </div>
+                        <div className="answers" >
+                            {
+                                answers?.answers.map((a) => (
 
-                }
 
+                                    <div className={selectedAnswer === a ? className : "answer"} onClick={() => handleClick(a)}>{a.text} </div>
+                                ))
+
+
+
+                            }
+
+                        </div>
+
+
+                        <div className="questionNumber" >
+                            <button className="previous" onClick={() => prevHandleClick()}  >&laquo; </button>
+                            {questionNumber + 1} {userName}
+                            <button className="next" onClick={() => nextHandleClick()}> &raquo;</button>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-
-
-            <div className="questionNumber" >
-                <button className="previous" onClick={() => prevHandleClick()}  >&laquo; </button>
-                {questionNumber + 1} 
-                <button className="next" onClick={() => nextHandleClick()}> &raquo;</button>
-            </div>
-
         </div>
 
     )
